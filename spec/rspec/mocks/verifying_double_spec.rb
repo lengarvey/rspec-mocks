@@ -39,6 +39,9 @@ class LoadedClass
     eval <<-RUBY
       def kw_args_method(optional_arg:'hello', required_arg:)
       end
+
+      def mixed_args_method(foo, bar, optional_arg_1: 1, optional_arg_2: 2)
+      end
     RUBY
   end
 
@@ -244,6 +247,22 @@ module RSpec
             it 'allows keyword arguments' do
               o = instance_double('LoadedClass', :kw_args_method => true)
               expect(o.kw_args_method(:required_arg => 'something')).to eq(true)
+            end
+
+            context 'for a method that only accepts keyword args' do
+              it 'allows hash matchers like `hash_including` to be used in place of the keywords arg hash' do
+                o = instance_double('LoadedClass')
+                expect(o).to receive(:kw_args_method).with(hash_including(:required_arg => 1))
+                o.kw_args_method(required_arg: 1)
+              end
+            end
+
+            context 'for a method that accepts a mix of optional keyword and positional args' do
+              it 'allows hash matchers like `hash_including` to be used in place of the keywords arg hash' do
+                o = instance_double('LoadedClass')
+                expect(o).to receive(:mixed_args_method).with(1, 2, hash_including(:optional_arg_1 => 1))
+                o.mixed_args_method(1, 2, optional_arg_1: 1)
+              end
             end
 
             it 'checks that stubbed methods with required keyword args are ' +
