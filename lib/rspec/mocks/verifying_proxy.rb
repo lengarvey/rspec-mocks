@@ -16,6 +16,11 @@ module RSpec
         super
       end
 
+      def message_received(method_name, *args, &block)
+        method_double_for(method_name).validate_arguments!(args)
+        super
+      end
+
       def add_message_expectation(method_name, opts={}, &block)
         ensure_implemented(method_name)
         super
@@ -127,8 +132,6 @@ module RSpec
         validate_arguments!(args)
         super
       end
-
-    private
 
       def validate_arguments!(actual_args)
         @method_reference.with_signature do |signature|

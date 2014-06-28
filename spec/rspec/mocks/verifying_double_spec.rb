@@ -255,6 +255,21 @@ module RSpec
                 expect(o).to receive(:kw_args_method).with(hash_including(:required_arg => 1))
                 o.kw_args_method(required_arg: 1)
               end
+
+              it 'allows `anything` matcher to match keywords args' do
+                o = instance_double('LoadedClass')
+                expect(o).to receive(:kw_args_method).with(anything)
+                o.kw_args_method(required_arg: 1)
+              end
+
+              it 'prevents invalid calls when anything matcher is used' do
+                o = instance_double('LoadedClass')
+                expect(o).to receive(:kw_args_method).with(anything)
+                expect {
+                  o.kw_args_method(wrong_arg: 1)
+                }.to raise_error(ArgumentError)
+                o.kw_args_method(required_arg: 1)
+              end
             end
 
             context 'for a method that accepts a mix of optional keyword and positional args' do
